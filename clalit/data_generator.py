@@ -23,8 +23,26 @@ columns = ['Patient ID', 'Gender_M', 'Gender_F', 'Acromegaly', 'Addisons Disease
            'Retinitis Pigmentosum', 'Retinopathy', 'Rheumatoid Arthritis', 's/p CVA', 's/p Head of Femur Fracture',
            's/p Pneumothorax', 's/p Pulmonary Embolism', 's/p splenectomy', 'Sarcoidosis', 'Schizophrenia',
            'Scleroderma', 'Sickle Cell Anemia', 'SLE', 'Smoking', 'Syphilis / Gonorrhea', 'Thalassemia', 'Tuberculosis',
-           'Tuberculosis s/p', 'Ulcerative Colitis', 'Valvular Cardiac Dis (excl. MVP)', 'Wilsons Disease'
+           'Tuberculosis s/p', 'Ulcerative Colitis', 'Valvular Cardiac Dis (excl.MVP)', 'Wilsons Disease'
            ]
+
+statistic_data = pandas.DataFrame.from_csv("static/statistics.csv", index_col=False)
+statistic_data = dict(zip(statistic_data['Disease'],
+                          statistic_data['Percentage'].apply(lambda x: float(x.replace('%', '')))))
+statistic_data['Gender_M'] = 50
+
+
+def fill_row(x):
+    repr_dict = x.to_dict()
+    for key, value in repr_dict.iteritems():
+        if key not in ['Patient ID', 'Gender_F']:
+            num = random.uniform(0, 100)
+            if num <= statistic_data[key]:
+                x[key] = 1
+            else:
+                x[key] = 0
+
+    return x
 
 
 def save_dummy_data(path, name, cols=columns):
@@ -37,7 +55,7 @@ def save_dummy_data(path, name, cols=columns):
     """
     df = pandas.DataFrame(columns=cols)
     df['Patient ID'] = range(10000)
-    df = df.applymap(lambda x: random.randint(0, 1))
+    df = df.apply(lambda x: fill_row(x), axis=1)
     df['Gender_F'] = df['Gender_M'].apply(lambda x: 1 - x)
     df['Patient ID'] = df.index
     df.to_csv(path + name, index=False, encoding='utf-8')
