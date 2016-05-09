@@ -86,6 +86,9 @@ def run_minning():
             final_df = pandas.DataFrame({"base": [], "data": [], "sup": [], "conf": []})
 
     i += 1
+    final_df = final_df.replace('(', '')
+    final_df = final_df.replace(')', '')
+    final_df = final_df.replace("'", '')
     final_df.to_csv("final_data_{0}.csv".format(i), index=False)
     print(datetime.datetime.now())
 
